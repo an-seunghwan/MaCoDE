@@ -4,6 +4,10 @@ This repository is the official implementation of 'Masked Language Modeling Beco
 
 > **_NOTE:_** This repository supports [WandB](https://wandb.ai/site) MLOps platform!
 
+## Dataset Preparation
+
+- Download and add the datasets into `data` folder to reproduce our experimental results.
+
 ## Training & Evaluation 
 
 ### 0. Arguments
@@ -55,6 +59,7 @@ python imputer.py --imputation True --dataset <dataset> --missing_type <missing_
 
 ```
 .
++-- data
 +-- assets 
 +-- datasets
 |       +-- imputation.py
