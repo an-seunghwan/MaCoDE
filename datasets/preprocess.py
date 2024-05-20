@@ -49,12 +49,11 @@ class CustomDataset(Dataset):
         self.col_2_idx = {col : i for i, col in enumerate(data[self.features].columns.to_list())}
         self.num_continuous_features = len(self.continuous_features)
         
-        # 범주형 데이터 인코딩
+        # encoding categorical dataset
         data[self.categorical_features] = data[self.categorical_features].apply(
             lambda col: col.astype('category').cat.codes + 1)
         self.num_categories = data[self.categorical_features].nunique(axis=0).to_list()
 
-        # 필요한 컬럼만 정렬 및 훈련 테스트 분할
         data = data[self.features] # select features for training
         train_data, test_data = train_test_split(
             data, test_size=config["test_size"], random_state=config["seed"])
@@ -63,7 +62,7 @@ class CustomDataset(Dataset):
         data = data.reset_index(drop=True)
         self.raw_data = train_data[self.features] if train else test_data[self.features]
         
-        # Missing 처리
+        # Apply missing data mechanism
         if train:
             if config["missing_type"] != "None":
                 mask = generate_mask(
@@ -98,7 +97,6 @@ class CustomDataset(Dataset):
         else:
             density = self.EmpiricalCDFs[col]
             
-        # Nan인 값은 아무 값(0)으로 대체
         nan_value[nan_mask] = 0.
         nan_value = np.digitize(
             np.where(
@@ -108,8 +106,8 @@ class CustomDataset(Dataset):
             ),
             self.bins
         ).astype(float)
-        # Nan인 값은 다시 라벨을 Nan으로 덮어쓰기
-        nan_value[nan_mask] = np.nan
+        
+        nan_value[nan_mask] = np.nan # reverse originally NaN values
         return nan_value
 
     def __len__(self):

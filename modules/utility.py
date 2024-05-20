@@ -13,11 +13,10 @@ from tqdm import tqdm
 def set_random_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)  # 모든 GPU에 대한 시드 고정
+    torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-    # NumPy 시드 고정
     np.random.seed(seed)
     random.seed(seed)   
 #%%
