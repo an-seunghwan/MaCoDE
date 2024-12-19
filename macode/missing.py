@@ -7,8 +7,6 @@ import numpy as np
 
 from scipy import optimize
 
-from modules.utility import set_random_seed
-
 #### Quantile ######
 def quantile(X, q, dim=None):
     """
@@ -313,7 +311,11 @@ def fit_intercepts(X, coeffs, p, self_mask=False):
 
 
 def generate_mask(X_true, missing_prop, mask_type, seed=0):
-    set_random_seed(seed) # for reproducibility
+    # for reproducibility
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
 
     p_obs = 0.3 # Proportion of variables that are fully observed (MAR & MNAR model), set to 0.3 according to OTImputer
     q_mnar = 0.75 # Quantile that will have imps (MNAR quantiles model), set to 0.75 according to OTImputer
