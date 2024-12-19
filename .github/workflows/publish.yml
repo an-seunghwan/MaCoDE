@@ -1,5 +1,6 @@
 name: Publish to PyPI
 
+# 태그 푸시 이벤트를 트리거로 설정
 on:
   push:
     tags:
@@ -10,22 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. 저장소 코드 가져오기
     - uses: actions/checkout@v3
 
+    # 2. Python 환경 설정
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
+    # 3. Poetry 설치
     - name: Install Poetry
       run: pip install poetry
 
+    # 4. 의존성 설치
     - name: Install dependencies
       run: poetry install
-    
-    - name: Clean dist directory
-      run: rm -rf dist
 
+    # 5. PyPI에 배포
     - name: Publish to PyPI
       env:
         POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
