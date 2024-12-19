@@ -168,7 +168,6 @@ wandb
 artifacts
 data
 .DS_Store
-*.sh
 logs
 etc
 figs
