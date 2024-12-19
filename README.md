@@ -1,89 +1,107 @@
-# Masked Language Modeling Becomes Conditional Density Estimation for Tabular Data Synthesis
+# MaCoDE
 
-This repository is the official implementation of 'Masked Language Modeling Becomes Conditional Density Estimation for Tabular Data Synthesis' (`MaCoDE`) with pytorch. 
+**MaCoDE** is a novel distributional learning method by redefining the consecutive multi-class classification task of Masked Language Modeling (MLM) as histogram-based non-parametric conditional density estimation. 
 
-> **_NOTE:_** This repository supports [WandB](https://wandb.ai/site) MLOps platform!
+> For a detailed method explanations, check our paper! [(link)]([XXX](https://arxiv.org/abs/2405.20602))
+> (The final camera-ready version manuscript will be available soon.)
 
-## Dataset Preparation
-
-- Download and add the datasets into `data` folder to reproduce our experimental results.
-
-## Training & Evaluation 
-
-### 0. Arguments
-
-- `--bins`: the number of bins used for discretization (default: `50`)
-- `--dataset`: dataset options (`covtype`, `loan`, `kings`, `banknote`, `concrete`, `redwine`, `whitewine`, `breast`, `letter`, `abalone`)
-- `--missing_type`: how to generate missing (`None`(complete data), `MCAR`, `MAR`, `MNARL`, `MNARQ`)
-- `--missing_rate`: missingness rate (default: `0.3`)
-
-### 1. Training 
-
-#### Q1:
+### 1. Installation
+Install using pip:
 ```
-python main.py --imputation False --dataset <dataset> --missing_type None 
-```   
-
-#### Q2:
-```
-python main.py --imputation False --dataset <dataset> --missing_type <missing_type> --missing_rate <missing_rate>
-```   
-
-#### Q3:
-```
-python main.py --imputation True --dataset <dataset> --missing_type <missing_type> --missing_rate <missing_rate>
-```   
-
-### 2. Evaluation 
-
-#### Q1:
-```
-python inference.py --imputation False --dataset <dataset> --missing_type None 
-```   
-
-#### Q2:
-```
-python inference.py --imputation False --dataset <dataset> --missing_type <missing_type> --missing_rate <missing_rate>
-```   
-- for privacy control experiment (`--tau`: user defined temperature for privacy controlling (default: `1.0`))
-```
-python inference.py --imputation False --dataset <dataset> --missing_type <missing_type> --missing_rate <missing_rate> --tau <tau>
+pip install macode
 ```
 
-#### Q3:
+### 2. Usage
+```python
+from macode import macode
+macode.MaCoDE # MaCoDE model
 ```
-python imputer.py --imputation True --dataset <dataset> --missing_type <missing_type> --missing_rate <missing_rate>
-```   
+- See [example.ipynb](example.ipynb) for detailed example and its results with `whitewine` dataset.
+  - Link for download `loan` dataset: [https://archive.ics.uci.edu/dataset/186/wine+quality](https://archive.ics.uci.edu/dataset/186/wine+quality)
 
-## Directory and codes
+#### Example
+```python
+import warnings
+warnings.filterwarnings('ignore')
 
+"""device setting"""
+import torch
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+"""load dataset and specify column types"""
+import pandas as pd
+data = pd.read_csv('./whitewine.csv', delimiter=";")
+columns = list(data.columns)
+columns.remove("quality")
+assert data.isna().sum().sum() == 0
+continuous_features = columns
+categorical_features = ["quality"]
+integer_features = []
+
+### the target column should be the last column
+data = data[continuous_features + categorical_features] 
+# len(data)
+
+"""training, test, synthetic datasets"""
+data[categorical_features] = data[categorical_features].apply(
+    lambda col: col.astype('category').cat.codes + 1) # pre-processing
+
+train = data.iloc[:4000]
+test = data.iloc[4000:]
+train = train.reset_index(drop=True)
+test = test.reset_index(drop=True)
+
+"""MaCoDE"""
+from macode import macode
+
+macode = macode.MaCoDE(
+    data=train, # the observed tabular dataset
+    continuous_features=continuous_features, # the list of continuous columns of data
+    categorical_features=categorical_features, # the list of categorical columns of data
+    integer_features=integer_features, # the list of integer-type columns of data
+    
+    seed=42, # seed for repeatable results
+    bins=100, # the number of bins for discretization
+    dim_transformer=128, # the embedding size (input dimension size of transformer)
+    num_transformer_heads=8, # the number of heads in transformer
+    num_transformer_layer=2, # the number of layers in transformer
+    
+    epochs=10, # the number of epochs (for quick checking)
+    batch_size=1024, # the batch size
+    lr=0.001, # learning rate
+    device="cpu",
+)
+
+"""training"""
+macode.train()
+
+"""generate synthetic data"""
+syndata = macode.generate_data(n=len(train), tau=1.)
+syndata
+
+"""Evaluate Synthetic Data Quality"""
+from synthetic_eval import evaluation
+
+target = "quality"
+results = evaluation.evaluate(
+    syndata, train, test, 
+    target, continuous_features, categorical_features, device
+)
+
+"""print results"""
+for x, y in results._asdict().items():
+    print(f"{x}: {y:.3f}")
 ```
-.
-+-- data
-+-- assets 
-+-- datasets
-|       +-- imputation.py
-|       +-- preprocess.py
-|       +-- raw_data.py
-+-- modules 
-|       +-- evaluation_imputation.py
-|       +-- evaluation.py
-|       +-- metric_MLu.py
-|       +-- metric_privacy.py
-|       +-- metric_stat.py
-|       +-- missing.py
-|       +-- model.py
-|       +-- train_missing.py
-|       +-- train.py
-|       +-- utility.py
-+-- main.py
-+-- inference.py
-+-- imputer.py
-+-- LICENSE
-+-- README.md
-```
+- See [example_missing.ipynb](example_missing.ipynb) for detailed example for missing data imputation.
+- For synthetic data quality evaluation (`synthetic_eval`), please refer to [https://pypi.org/project/synthetic-eval](https://pypi.org/project/synthetic-eval).
 
-## Citation
-```
-
+### 3. Citation
+If you use this code or package, please cite our associated paper: (The final camera-ready version manuscript will be available soon.)
+```bibtex
+@article{an2024masked,
+  title={Masked Language Modeling Becomes Conditional Density Estimation for Tabular Data Synthesis},
+  author={An, Seunghwan and Woo, Gyeongdong and Lim, Jaesung and Kim, ChangHyun and Hong, Sungchul and Jeon, Jong-June},
+  journal={arXiv preprint arXiv:2405.20602},
+  year={2024}
+}
 ```

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# 스크립트 오류 발생 시 종료
 set -e
 
 CURRENT_VERSION=$(poetry version --short)
