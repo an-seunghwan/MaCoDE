@@ -2,7 +2,7 @@
 
 **MaCoDE** is a novel distributional learning method by redefining the consecutive multi-class classification task of Masked Language Modeling (MLM) as histogram-based non-parametric conditional density estimation. 
 
-> For a detailed method explanations, check our paper! [(link)]([XXX](https://arxiv.org/abs/2405.20602))
+> For a detailed method explanations, check our paper! [(link)]([https://arxiv.org/abs/2405.20602](https://arxiv.org/abs/2405.20602))
 > (The final camera-ready version manuscript will be available soon.)
 
 ### 1. Installation
@@ -17,7 +17,7 @@ from macode import macode
 macode.MaCoDE # MaCoDE model
 ```
 - See [example.ipynb](example.ipynb) for detailed example and its results with `whitewine` dataset.
-  - Link for download `loan` dataset: [https://archive.ics.uci.edu/dataset/186/wine+quality](https://archive.ics.uci.edu/dataset/186/wine+quality)
+  - Link for download `whitewine` dataset: [https://archive.ics.uci.edu/dataset/186/wine+quality](https://archive.ics.uci.edu/dataset/186/wine+quality)
 
 #### Example
 ```python
