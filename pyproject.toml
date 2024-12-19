@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "macode"
-version = "0.2.0"
+version = "0.2.1"
 description = "Package for Implementing MaCoDE"
 authors = ["an-seunghwan <dpeltms79@gmail.com>"]
 license = "MIT"
