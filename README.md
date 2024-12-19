@@ -1,4 +1,4 @@
-# MaCoDE
+# MaCoDE (accepted to AAAI 2025)
 
 **MaCoDE** is a novel distributional learning method by redefining the consecutive multi-class classification task of Masked Language Modeling (MLM) as histogram-based non-parametric conditional density estimation. 
 
